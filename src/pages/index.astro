@@ -1,33 +1,30 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
 
-const siteName = "hybrid'immo";
 const tagline = "L'immobilier hybride : l'expertise humaine augmentée par le digital.";
 ---
 
-<html lang="fr">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={tagline} />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-			rel="stylesheet"
-		/>
-		<title>{siteName}</title>
-	</head>
-	<body class="min-h-screen bg-canvas font-sans text-slate-900 antialiased">
-		<main class="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-			<h1 class="text-5xl font-bold tracking-tight sm:text-6xl">
-				{siteName.split("'")[0]}<span class="text-accent">'{siteName.split("'")[1]}</span>
-			</h1>
-			<p class="mt-6 max-w-xl text-lg text-slate-500">
-				{tagline}
-			</p>
-		</main>
-	</body>
-</html>
+<Layout title="hybrid'immo" description={tagline}>
+  <section class="mx-auto flex max-w-3xl flex-col items-center px-6 py-24 text-center sm:py-32">
+    <h1 class="text-5xl font-bold tracking-tight sm:text-6xl">
+      hybrid<span class="text-accent">'immo</span>
+    </h1>
+    <p class="mt-6 max-w-xl text-lg text-[#6B7280]">
+      {tagline}
+    </p>
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="/appartements"
+        class="rounded-full bg-accent px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+      >
+        Voir les appartements
+      </a>
+      <a
+        href="/demande"
+        class="rounded-full px-6 py-3 font-semibold text-[#1A1A1A] ring-1 ring-black/10 transition-colors hover:bg-black/5"
+      >
+        Faire une demande
+      </a>
+    </div>
+  </section>
+</Layout>

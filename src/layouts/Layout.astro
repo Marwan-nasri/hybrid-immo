@@ -1,0 +1,71 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "hybrid'immo — location et sous-location d'appartements en France.",
+} = Astro.props;
+
+const annee = new Date().getFullYear();
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body class="flex min-h-screen flex-col bg-canvas font-sans text-[#1A1A1A] antialiased">
+    <header class="sticky top-0 z-10 border-b border-black/5 bg-canvas/80 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" class="text-xl font-bold tracking-tight">
+          hybrid<span class="text-accent">'immo</span>
+        </a>
+        <nav class="flex items-center gap-6 text-sm font-medium text-[#6B7280]">
+          <a href="/appartements" class="transition-colors hover:text-[#1A1A1A]">Appartements</a>
+          <a
+            href="/demande"
+            class="rounded-full bg-accent px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Faire une demande
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="mt-auto bg-[#0D0D0D] text-white/70">
+      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-10 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-lg font-bold text-white">hybrid<span class="text-accent">'immo</span></p>
+        <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a href="/appartements" class="transition-colors hover:text-white">Appartements</a>
+          <a href="/demande" class="transition-colors hover:text-white">Faire une demande</a>
+          <a href="/mentions-legales" class="transition-colors hover:text-white">Mentions légales</a>
+          <a href="/confidentialite" class="transition-colors hover:text-white">Confidentialité</a>
+        </nav>
+      </div>
+      <div class="border-t border-white/10">
+        <p class="mx-auto max-w-6xl px-6 py-4 text-xs text-white/40">
+          © {annee} hybrid'immo. Tous droits réservés.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AppartementCard from '../../components/AppartementCard.astro';
+import { supabase } from '../../lib/supabase';
+import type { TypeBien, Duree } from '../../lib/database.types';
+
+// --- Lecture des filtres depuis l'URL (GET) ---
+const params = Astro.url.searchParams;
+const fVille = params.get('ville')?.trim() ?? '';
+const fType = params.get('type') ?? '';
+const fDuree = params.get('duree') ?? '';
+const fBudgetRaw = params.get('budget_max') ?? '';
+const fBudget = fBudgetRaw && !Number.isNaN(Number(fBudgetRaw)) ? Number(fBudgetRaw) : null;
+
+// --- Liste des villes disponibles (pour le menu déroulant) ---
+const { data: villesRows } = await supabase.from('appartements').select('ville');
+const villes = [...new Set((villesRows ?? []).map((r) => r.ville))].sort((a, b) =>
+  a.localeCompare(b, 'fr'),
+);
+
+// --- Requête principale, filtrée côté base ---
+// La clé anon est utilisée : la policy RLS `appartements_select_public` s'applique.
+let query = supabase
+  .from('appartements')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+if (fVille) query = query.eq('ville', fVille);
+if (fType === 'location' || fType === 'sous-location') query = query.eq('type', fType as TypeBien);
+if (fDuree === 'courte' || fDuree === 'longue') query = query.eq('duree', fDuree as Duree);
+if (fBudget != null) query = query.lte('prix_mensuel', fBudget);
+
+const { data: appartements, error } = await query;
+
+const aFiltres = Boolean(fVille || fType || fDuree || fBudget != null);
+---
+
+<Layout title="Appartements — hybrid'immo" description="Nos appartements en location et sous-location.">
+  <section class="mx-auto max-w-6xl px-6 py-10">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Nos appartements</h1>
+    <p class="mt-2 text-[#6B7280]">
+      Location et sous-location, courte et longue durée.
+    </p>
+
+    <!-- Filtres (formulaire GET : la sélection se retrouve dans l'URL, SSR pur) -->
+    <form
+      method="get"
+      class="mt-8 grid grid-cols-1 gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5 sm:grid-cols-2 lg:grid-cols-5 lg:items-end"
+    >
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="font-medium text-[#6B7280]">Ville</span>
+        <select name="ville" class="rounded-lg border border-black/10 bg-white px-3 py-2">
+          <option value="">Toutes les villes</option>
+          {villes.map((v) => <option value={v} selected={v === fVille}>{v}</option>)}
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="font-medium text-[#6B7280]">Type</span>
+        <select name="type" class="rounded-lg border border-black/10 bg-white px-3 py-2">
+          <option value="">Tous types</option>
+          <option value="location" selected={fType === 'location'}>Location</option>
+          <option value="sous-location" selected={fType === 'sous-location'}>Sous-location</option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="font-medium text-[#6B7280]">Durée</span>
+        <select name="duree" class="rounded-lg border border-black/10 bg-white px-3 py-2">
+          <option value="">Toutes durées</option>
+          <option value="courte" selected={fDuree === 'courte'}>Courte</option>
+          <option value="longue" selected={fDuree === 'longue'}>Longue</option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="font-medium text-[#6B7280]">Budget max (€/mois)</span>
+        <input
+          type="number"
+          name="budget_max"
+          min="0"
+          step="50"
+          value={fBudgetRaw}
+          placeholder="ex. 1200"
+          class="rounded-lg border border-black/10 bg-white px-3 py-2"
+        />
+      </label>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="submit"
+          class="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Filtrer
+        </button>
+        {aFiltres && (
+          <a href="/appartements" class="text-sm font-medium text-[#6B7280] hover:text-[#1A1A1A]">
+            Réinitialiser
+          </a>
+        )}
+      </div>
+    </form>
+
+    <!-- Résultats -->
+    <div class="mt-8">
+      {
+        error ? (
+          <p class="rounded-2xl bg-red-50 p-6 text-red-700">
+            Erreur de chargement des appartements : {error.message}
+          </p>
+        ) : !appartements || appartements.length === 0 ? (
+          <p class="rounded-2xl bg-white p-8 text-center text-[#6B7280] ring-1 ring-black/5">
+            {aFiltres
+              ? 'Aucun appartement ne correspond à ces critères.'
+              : 'Aucun appartement pour le moment.'}
+          </p>
+        ) : (
+          <>
+            <p class="mb-4 text-sm text-[#6B7280]">
+              {appartements.length} appartement{appartements.length > 1 ? 's' : ''}
+            </p>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {appartements.map((a) => <AppartementCard appartement={a} />)}
+            </div>
+          </>
+        )
+      }
+    </div>
+  </section>
+</Layout>
