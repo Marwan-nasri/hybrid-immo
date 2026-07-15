@@ -22,14 +22,15 @@ Site web pour un gestionnaire d'appartements en location et sous-location (court
 ## Variables d'environnement
 
 ```
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=   # côté serveur uniquement, jamais exposée au client
-RESEND_API_KEY=
-NOTIFICATION_EMAIL=          # email du gestionnaire qui reçoit les notifications
+PUBLIC_SUPABASE_URL=          # exposée au client (préfixe PUBLIC_ requis par Astro)
+PUBLIC_SUPABASE_ANON_KEY=     # exposée au client — clé anon, protégée par les policies RLS
+SUPABASE_SERVICE_ROLE_KEY=    # côté serveur uniquement, jamais exposée au client
+RESEND_API_KEY=               # côté serveur uniquement
+NOTIFICATION_EMAIL=           # email du gestionnaire qui reçoit les notifications
+PUBLIC_SITE_URL=              # URL publique du site (liens absolus dans les emails)
 ```
 
-Ne jamais utiliser `SUPABASE_SERVICE_ROLE_KEY` dans du code exécuté côté client. Les clés vivent dans `.env` (gitignoré) et dans les variables d'environnement Vercel.
+Convention Astro : seules les variables préfixées `PUBLIC_` sont accessibles côté navigateur. L'URL et la clé anon Supabase doivent l'être (le catalogue public interroge Supabase depuis le client), d'où le préfixe — elles sont de toute façon protégées par les policies RLS. Ne jamais utiliser `SUPABASE_SERVICE_ROLE_KEY` (ni `RESEND_API_KEY`) dans du code exécuté côté client. Les clés vivent dans `.env` (gitignoré) et dans les variables d'environnement Vercel.
 
 ## Schéma de base de données
 
