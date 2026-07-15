@@ -12,22 +12,22 @@ values
   ('Studio lumineux hypercentre',
    'Studio rénové, idéal étudiant ou jeune actif, proche des transports.',
    'location', 'longue', 'Nancy', 'Centre-ville', 520, 40, 26, 1, true, current_date,
-   array['https://picsum.photos/seed/immo-1/800/600']),
+   'disponible', array['https://picsum.photos/seed/immo-1/800/600']),
 
   ('T2 cosy proche gare',
    'Deux pièces meublé, parfait pour la sous-location courte durée.',
    'sous-location', 'courte', 'Nancy', 'Gare', 780, 60, 42, 2, true, current_date + 15,
-   array['https://picsum.photos/seed/immo-2/800/600']),
+   'disponible', array['https://picsum.photos/seed/immo-2/800/600']),
 
   ('T3 familial avec balcon',
    'Grand trois pièces non meublé, quartier calme et résidentiel.',
    'location', 'longue', 'Metz', 'Sablon', 950, 80, 68, 3, false, current_date + 30,
-   array['https://picsum.photos/seed/immo-3/800/600']),
+   'disponible', array['https://picsum.photos/seed/immo-3/800/600']),
 
   ('Appartement design centre-ville',
    'Sous-location longue durée, entièrement équipé, prestations haut de gamme.',
    'sous-location', 'longue', 'Strasbourg', 'Krutenau', 1150, 90, 55, 2, true, current_date + 45,
-   array['https://picsum.photos/seed/immo-4/800/600']),
+   'disponible', array['https://picsum.photos/seed/immo-4/800/600']),
 
   ('Studio étudiant meublé',
    'Petit studio fonctionnel, disponible bientôt, proche campus.',
