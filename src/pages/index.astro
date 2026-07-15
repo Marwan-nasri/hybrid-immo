@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+
+const siteName = "hybrid'immo";
+const tagline = "L'immobilier hybride : l'expertise humaine augmentée par le digital.";
+---
+
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={tagline} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<title>{siteName}</title>
+	</head>
+	<body class="min-h-screen bg-canvas font-sans text-slate-900 antialiased">
+		<main class="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+			<h1 class="text-5xl font-bold tracking-tight sm:text-6xl">
+				{siteName.split("'")[0]}<span class="text-accent">'{siteName.split("'")[1]}</span>
+			</h1>
+			<p class="mt-6 max-w-xl text-lg text-slate-500">
+				{tagline}
+			</p>
+		</main>
+	</body>
+</html>
