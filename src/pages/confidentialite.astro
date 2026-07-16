@@ -1,0 +1,113 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// ⚠️ Les valeurs entre crochets sont des placeholders à remplacer par les
+// informations réelles du gestionnaire avant la mise en production.
+---
+
+<Layout
+  title="Politique de confidentialité — hybrid'immo"
+  description="Comment hybrid'immo collecte et protège vos données personnelles (RGPD)."
+>
+  <section class="mx-auto max-w-3xl px-6 py-16">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+      Politique de confidentialité
+    </h1>
+    <p class="mt-4 text-[#6B7280]">
+      Cette page décrit comment vos données personnelles sont collectées et utilisées
+      lorsque vous envoyez une demande sur hybrid'immo, conformément au Règlement général
+      sur la protection des données (RGPD).
+    </p>
+
+    <div class="mt-10 space-y-10 text-[#6B7280]">
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Responsable du traitement</h2>
+        <p class="mt-3 leading-relaxed">
+          <strong>[Nom / raison sociale]</strong>, <strong>[adresse complète]</strong> —
+          contact : <strong>[email de contact]</strong>.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Données collectées</h2>
+        <p class="mt-3 leading-relaxed">
+          Lorsque vous envoyez une demande via nos formulaires, nous collectons uniquement
+          les informations nécessaires au traitement de votre projet de location :
+        </p>
+        <ul class="mt-3 list-disc space-y-1 pl-6 leading-relaxed">
+          <li>nom, adresse email et numéro de téléphone ;</li>
+          <li>
+            critères de recherche : type de bien, durée, ville, budget, date d'entrée
+            souhaitée, nombre de personnes ;
+          </li>
+          <li>le message libre que vous choisissez éventuellement de nous laisser.</li>
+        </ul>
+        <p class="mt-3 leading-relaxed">
+          Aucune autre donnée n'est collectée : pas de compte utilisateur, pas de traceur
+          publicitaire.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Finalité et base légale</h2>
+        <p class="mt-3 leading-relaxed">
+          Ces données servent exclusivement à traiter votre demande de location et à vous
+          recontacter. La base légale est votre <strong>consentement</strong>, recueilli
+          via la case à cocher obligatoire du formulaire. Vos données ne sont ni revendues
+          ni transmises à des tiers à des fins commerciales.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Destinataires et sous-traitants</h2>
+        <p class="mt-3 leading-relaxed">
+          Seul le gestionnaire du site a accès à vos demandes. Deux sous-traitants
+          techniques interviennent :
+        </p>
+        <ul class="mt-3 list-disc space-y-1 pl-6 leading-relaxed">
+          <li>
+            <strong>Supabase</strong> (hébergement de la base de données, serveurs dans
+            l'Union européenne) ;
+          </li>
+          <li>
+            <strong>Resend</strong> (envoi des emails de notification et d'accusé de
+            réception).
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Durée de conservation</h2>
+        <p class="mt-3 leading-relaxed">
+          Les demandes sont conservées pendant <strong>6 mois</strong> après leur dépôt,
+          puis supprimées. Vous pouvez demander leur suppression à tout moment avant ce
+          délai.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Vos droits</h2>
+        <p class="mt-3 leading-relaxed">
+          Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de
+          suppression, de limitation et d'opposition sur vos données, ainsi que du droit
+          de retirer votre consentement à tout moment. Pour l'exercer, écrivez à
+          <strong>[email de contact]</strong> — réponse sous un mois maximum.
+        </p>
+        <p class="mt-3 leading-relaxed">
+          Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une
+          réclamation à la CNIL —
+          <a href="https://www.cnil.fr" class="text-accent hover:underline">cnil.fr</a>.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-[#1A1A1A]">Cookies</h2>
+        <p class="mt-3 leading-relaxed">
+          Le site public n'utilise aucun cookie de suivi ou de publicité. Seul l'espace
+          d'administration, réservé au gestionnaire, utilise un cookie de session
+          strictement nécessaire à son fonctionnement.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
