@@ -1,0 +1,113 @@
+---
+import type { AppartErreurs, AppartValeurs } from '../lib/appartement-form';
+
+interface Props {
+  valeurs?: AppartValeurs;
+  erreurs?: AppartErreurs;
+  labelBouton?: string;
+}
+
+const { valeurs = {}, erreurs = {}, labelBouton = 'Enregistrer' } = Astro.props;
+
+const v = (k: string) => valeurs[k] ?? '';
+const champ = (k: string) =>
+  ['w-full rounded-lg border bg-white px-3 py-2', erreurs[k] ? 'border-red-400' : 'border-black/10'].join(
+    ' ',
+  );
+---
+
+<form method="post" class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+  <label class="sm:col-span-2 flex flex-col gap-1 text-sm">
+    <span class="font-medium">Titre <span class="text-red-500">*</span></span>
+    <input type="text" name="titre" required value={v('titre')} class={champ('titre')} />
+    {erreurs.titre && <span class="text-xs text-red-600">{erreurs.titre}</span>}
+  </label>
+
+  <label class="sm:col-span-2 flex flex-col gap-1 text-sm">
+    <span class="font-medium">Description</span>
+    <textarea name="description" rows="4" class={champ('description')}>{v('description')}</textarea>
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Type <span class="text-red-500">*</span></span>
+    <select name="type" class={champ('type')}>
+      <option value="">—</option>
+      <option value="location" selected={v('type') === 'location'}>Location</option>
+      <option value="sous-location" selected={v('type') === 'sous-location'}>Sous-location</option>
+    </select>
+    {erreurs.type && <span class="text-xs text-red-600">{erreurs.type}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Durée <span class="text-red-500">*</span></span>
+    <select name="duree" class={champ('duree')}>
+      <option value="">—</option>
+      <option value="courte" selected={v('duree') === 'courte'}>Courte</option>
+      <option value="longue" selected={v('duree') === 'longue'}>Longue</option>
+    </select>
+    {erreurs.duree && <span class="text-xs text-red-600">{erreurs.duree}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Ville <span class="text-red-500">*</span></span>
+    <input type="text" name="ville" required value={v('ville')} class={champ('ville')} />
+    {erreurs.ville && <span class="text-xs text-red-600">{erreurs.ville}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Quartier</span>
+    <input type="text" name="quartier" value={v('quartier')} class={champ('quartier')} />
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Prix mensuel (€) <span class="text-red-500">*</span></span>
+    <input type="number" name="prix_mensuel" min="0" step="10" required value={v('prix_mensuel')} class={champ('prix_mensuel')} />
+    {erreurs.prix_mensuel && <span class="text-xs text-red-600">{erreurs.prix_mensuel}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Charges (€)</span>
+    <input type="number" name="charges" min="0" step="10" value={v('charges')} class={champ('charges')} />
+    {erreurs.charges && <span class="text-xs text-red-600">{erreurs.charges}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Surface (m²)</span>
+    <input type="number" name="surface" min="0" step="1" value={v('surface')} class={champ('surface')} />
+    {erreurs.surface && <span class="text-xs text-red-600">{erreurs.surface}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Nombre de pièces</span>
+    <input type="number" name="nb_pieces" min="0" step="1" value={v('nb_pieces')} class={champ('nb_pieces')} />
+    {erreurs.nb_pieces && <span class="text-xs text-red-600">{erreurs.nb_pieces}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Date de disponibilité</span>
+    <input type="date" name="date_disponibilite" value={v('date_disponibilite')} class={champ('date_disponibilite')} />
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Statut</span>
+    <select name="statut" class={champ('statut')}>
+      <option value="disponible" selected={v('statut') === 'disponible'}>Disponible</option>
+      <option value="bientot" selected={v('statut') === 'bientot'}>Bientôt</option>
+      <option value="loue" selected={v('statut') === 'loue'}>Loué</option>
+    </select>
+  </label>
+
+  <label class="flex items-center gap-2 text-sm sm:pt-6">
+    <input type="checkbox" name="meuble" checked={v('meuble') === 'on'} />
+    <span class="font-medium">Meublé</span>
+  </label>
+
+  <div class="sm:col-span-2">
+    <button
+      type="submit"
+      class="rounded-full bg-accent px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+    >
+      {labelBouton}
+    </button>
+  </div>
+</form>

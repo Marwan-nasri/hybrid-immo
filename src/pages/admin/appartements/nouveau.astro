@@ -1,0 +1,46 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import AppartementForm from '../../../components/AppartementForm.astro';
+import { parseAppartementForm, type AppartErreurs, type AppartValeurs } from '../../../lib/appartement-form';
+
+const supabase = Astro.locals.supabase;
+
+let erreurs: AppartErreurs = {};
+let valeurs: AppartValeurs = {};
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const res = parseAppartementForm(form);
+  erreurs = res.erreurs;
+  valeurs = res.valeurs;
+
+  if (res.data) {
+    // Insertion (client authentifié → RLS authenticated). On récupère l'id pour
+    // rediriger vers l'édition, où l'admin ajoutera les photos (sous-étape 5.3).
+    const { data, error } = await supabase
+      .from('appartements')
+      .insert({ ...res.data, photos: [] })
+      .select('id')
+      .single();
+
+    if (error) {
+      erreurs._global = "Erreur lors de l'enregistrement : " + error.message;
+    } else {
+      return Astro.redirect(`/admin/appartements/${data.id}?cree=1`);
+    }
+  }
+}
+---
+
+<AdminLayout title="Nouvel appartement">
+  <a href="/admin" class="text-sm text-[#6B7280] hover:text-[#1A1A1A]">← Retour au dashboard</a>
+  <h1 class="mt-2 text-2xl font-bold tracking-tight">Nouvel appartement</h1>
+
+  {erreurs._global && (
+    <p class="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{erreurs._global}</p>
+  )}
+
+  <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+    <AppartementForm valeurs={valeurs} erreurs={erreurs} labelBouton="Créer l'appartement" />
+  </div>
+</AdminLayout>

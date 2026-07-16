@@ -1,0 +1,130 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import AppartementForm from '../../../components/AppartementForm.astro';
+import {
+  parseAppartementForm,
+  appartementVersValeurs,
+  type AppartErreurs,
+  type AppartValeurs,
+} from '../../../lib/appartement-form';
+
+const supabase = Astro.locals.supabase;
+const { id } = Astro.params;
+
+let erreurs: AppartErreurs = {};
+let valeurs: AppartValeurs = {};
+let maj = false;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+
+  if (form.get('_action') === 'supprimer') {
+    const { error } = await supabase.from('appartements').delete().eq('id', id!);
+    if (!error) return Astro.redirect('/admin?supprime=1');
+    erreurs._global = 'Erreur lors de la suppression : ' + error.message;
+  } else {
+    const res = parseAppartementForm(form);
+    erreurs = res.erreurs;
+    valeurs = res.valeurs;
+    if (res.data) {
+      const { error } = await supabase.from('appartements').update(res.data).eq('id', id!);
+      if (error) erreurs._global = 'Erreur lors de la mise à jour : ' + error.message;
+      else maj = true;
+    }
+  }
+}
+
+const { data: appartement } = await supabase
+  .from('appartements')
+  .select('*')
+  .eq('id', id!)
+  .maybeSingle();
+
+if (!appartement) Astro.response.status = 404;
+
+// Valeurs du formulaire : celles saisies si erreur de validation, sinon celles de la base.
+const erreurValidation = Object.keys(erreurs).some((k) => k !== '_global');
+const valeursForm = erreurValidation ? valeurs : appartement ? appartementVersValeurs(appartement) : {};
+
+const cree = Astro.url.searchParams.get('cree') === '1';
+---
+
+<AdminLayout title={appartement ? appartement.titre : 'Introuvable'}>
+  <a href="/admin" class="text-sm text-[#6B7280] hover:text-[#1A1A1A]">← Retour au dashboard</a>
+
+  {
+    !appartement ? (
+      <p class="mt-6 rounded-2xl bg-white p-8 text-center text-[#6B7280] ring-1 ring-black/5">
+        Appartement introuvable.
+      </p>
+    ) : (
+      <>
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 class="text-2xl font-bold tracking-tight">{appartement.titre}</h1>
+          <a
+            href={`/appartements/${appartement.id}`}
+            target="_blank"
+            class="text-sm font-medium text-accent hover:underline"
+          >
+            Voir la fiche publique ↗
+          </a>
+        </div>
+
+        {cree && (
+          <p class="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
+            Appartement créé. Vous pouvez maintenant compléter ses informations.
+          </p>
+        )}
+        {maj && (
+          <p class="mt-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
+            Modifications enregistrées.
+          </p>
+        )}
+        {erreurs._global && (
+          <p class="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{erreurs._global}</p>
+        )}
+
+        {/* Photos (upload à venir en sous-étape 5.3) */}
+        <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <h2 class="text-sm font-semibold">Photos ({appartement.photos.length})</h2>
+          {appartement.photos.length > 0 ? (
+            <div class="mt-3 grid grid-cols-4 gap-3 sm:grid-cols-6">
+              {appartement.photos.map((url) => (
+                <img src={url} alt="" class="aspect-square w-full rounded-lg object-cover" />
+              ))}
+            </div>
+          ) : (
+            <p class="mt-2 text-sm text-[#6B7280]">Aucune photo. (Upload disponible prochainement.)</p>
+          )}
+        </div>
+
+        {/* Formulaire d'édition */}
+        <div class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+          <AppartementForm valeurs={valeursForm} erreurs={erreurs} labelBouton="Enregistrer les modifications" />
+        </div>
+
+        {/* Suppression */}
+        <div class="mt-6 rounded-2xl border border-red-200 bg-red-50/50 p-6">
+          <h2 class="text-sm font-semibold text-red-800">Zone dangereuse</h2>
+          <p class="mt-1 text-sm text-red-700">
+            La suppression est définitive. Les demandes liées seront conservées et rattachées à
+            « demande générale ».
+          </p>
+          <form
+            method="post"
+            class="mt-4"
+            onsubmit="return confirm('Supprimer définitivement cet appartement ?')"
+          >
+            <input type="hidden" name="_action" value="supprimer" />
+            <button
+              type="submit"
+              class="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700"
+            >
+              Supprimer cet appartement
+            </button>
+          </form>
+        </div>
+      </>
+    )
+  }
+</AdminLayout>

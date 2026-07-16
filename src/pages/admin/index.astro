@@ -36,9 +36,14 @@ const statutBadge: Record<string, string> = {
   bientot: 'bg-amber-100 text-amber-800',
   loue: 'bg-gray-200 text-gray-600',
 };
+
+const supprime = Astro.url.searchParams.get('supprime') === '1';
 ---
 
 <AdminLayout title="Dashboard">
+  {supprime && (
+    <p class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">Appartement supprimé.</p>
+  )}
   <div class="flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
     <a
