@@ -1,0 +1,123 @@
+---
+import type { Appartement } from '../lib/database.types';
+import type { DemandeErreurs, DemandeValeurs } from '../lib/demandes';
+
+interface Props {
+  appartement?: Appartement | null;
+  erreurs?: DemandeErreurs;
+  valeurs?: DemandeValeurs;
+}
+
+const { appartement = null, erreurs = {}, valeurs = {} } = Astro.props;
+
+// Valeur initiale d'un champ :
+//   - si un POST a échoué → on réaffiche ce que l'utilisateur avait saisi (valeurs)
+//   - sinon (1er affichage) → pré-remplissage depuis l'appartement le cas échéant
+const init = (cle: string, prefill = '') => valeurs[cle] ?? prefill;
+const coche = valeurs.consentement_rgpd === 'on';
+
+// Classe d'un champ, bordure rouge s'il est en erreur.
+const champ = (cle: string) =>
+  [
+    'w-full rounded-lg border bg-white px-3 py-2',
+    erreurs[cle] ? 'border-red-400' : 'border-black/10',
+  ].join(' ');
+---
+
+<form method="post" class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+  {appartement && <input type="hidden" name="appartement_id" value={appartement.id} />}
+
+  {
+    erreurs._global && (
+      <p class="sm:col-span-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        {erreurs._global}
+      </p>
+    )
+  }
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Nom <span class="text-red-500">*</span></span>
+    <input type="text" name="nom" required value={init('nom')} class={champ('nom')} />
+    {erreurs.nom && <span class="text-xs text-red-600">{erreurs.nom}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Email <span class="text-red-500">*</span></span>
+    <input type="email" name="email" required value={init('email')} class={champ('email')} />
+    {erreurs.email && <span class="text-xs text-red-600">{erreurs.email}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Téléphone <span class="text-red-500">*</span></span>
+    <input type="tel" name="telephone" required value={init('telephone')} class={champ('telephone')} />
+    {erreurs.telephone && <span class="text-xs text-red-600">{erreurs.telephone}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Ville souhaitée</span>
+    <input type="text" name="ville" value={init('ville', appartement?.ville ?? '')} class={champ('ville')} />
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Type</span>
+    <select name="type_demande" class={champ('type_demande')}>
+      <option value="">Indifférent</option>
+      <option value="location" selected={init('type_demande', appartement?.type ?? '') === 'location'}>Location</option>
+      <option value="sous-location" selected={init('type_demande', appartement?.type ?? '') === 'sous-location'}>Sous-location</option>
+    </select>
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Durée</span>
+    <select name="duree" class={champ('duree')}>
+      <option value="">Indifférent</option>
+      <option value="courte" selected={init('duree', appartement?.duree ?? '') === 'courte'}>Courte</option>
+      <option value="longue" selected={init('duree', appartement?.duree ?? '') === 'longue'}>Longue</option>
+    </select>
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Budget max (€/mois)</span>
+    <input type="number" name="budget" min="0" step="50" value={init('budget')} class={champ('budget')} />
+    {erreurs.budget && <span class="text-xs text-red-600">{erreurs.budget}</span>}
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Date d'entrée souhaitée</span>
+    <input type="date" name="date_entree" value={init('date_entree')} class={champ('date_entree')} />
+  </label>
+
+  <label class="flex flex-col gap-1 text-sm">
+    <span class="font-medium">Nombre de personnes</span>
+    <input type="number" name="nb_personnes" min="1" step="1" value={init('nb_personnes')} class={champ('nb_personnes')} />
+    {erreurs.nb_personnes && <span class="text-xs text-red-600">{erreurs.nb_personnes}</span>}
+  </label>
+
+  <label class="sm:col-span-2 flex flex-col gap-1 text-sm">
+    <span class="font-medium">Message</span>
+    <textarea name="message" rows="4" class={champ('message')}>{init('message')}</textarea>
+  </label>
+
+  <div class="sm:col-span-2 flex flex-col gap-1">
+    <label class="flex items-start gap-3 text-sm">
+      <input type="checkbox" name="consentement_rgpd" required checked={coche} class="mt-1" />
+      <span>
+        J'accepte que mes informations soient utilisées pour traiter ma demande, conformément à la
+        <a href="/confidentialite" class="text-accent underline">politique de confidentialité</a>.
+        <span class="text-red-500">*</span>
+      </span>
+    </label>
+    {erreurs.consentement_rgpd && (
+      <span class="text-xs text-red-600">{erreurs.consentement_rgpd}</span>
+    )}
+  </div>
+
+  <div class="sm:col-span-2">
+    <button
+      type="submit"
+      class="rounded-full bg-accent px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+    >
+      Envoyer ma demande
+    </button>
+  </div>
+</form>

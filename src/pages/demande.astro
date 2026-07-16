@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DemandeForm from '../components/DemandeForm.astro';
+import { traiterDemande, type DemandeErreurs, type DemandeValeurs } from '../lib/demandes';
+
+let succes = false;
+let erreurs: DemandeErreurs = {};
+let valeurs: DemandeValeurs = {};
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const res = await traiterDemande(formData);
+  succes = res.ok;
+  erreurs = res.erreurs;
+  valeurs = res.valeurs;
+}
+---
+
+<Layout
+  title="Faire une demande — hybrid'immo"
+  description="Décrivez votre recherche, nous vous recontactons sous 24 à 48 h."
+>
+  <section class="mx-auto max-w-3xl px-6 py-10">
+    <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Faire une demande</h1>
+    <p class="mt-2 text-[#6B7280]">
+      Vous ne trouvez pas votre bonheur dans le catalogue ? Décrivez votre recherche, nous vous
+      recontactons sous 24 à 48 h.
+    </p>
+
+    <div class="mt-8">
+      {
+        succes ? (
+          <div class="rounded-2xl bg-green-50 p-6 text-green-800">
+            <h2 class="text-lg font-semibold">Demande envoyée ✅</h2>
+            <p class="mt-1">Merci ! Votre demande a bien été reçue. Nous vous répondrons sous 24 à 48 h.</p>
+            <a href="/appartements" class="mt-4 inline-block font-medium text-accent underline">
+              Voir les appartements
+            </a>
+          </div>
+        ) : (
+          <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+            <DemandeForm erreurs={erreurs} valeurs={valeurs} />
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>

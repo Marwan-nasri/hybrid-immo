@@ -1,0 +1,160 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DemandeForm from '../../components/DemandeForm.astro';
+import { supabase } from '../../lib/supabase';
+import { traiterDemande, type DemandeErreurs, type DemandeValeurs } from '../../lib/demandes';
+
+const { id } = Astro.params;
+
+// --- Traitement du formulaire de demande (POST sur la même URL) ---
+let succes = false;
+let erreurs: DemandeErreurs = {};
+let valeurs: DemandeValeurs = {};
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const res = await traiterDemande(formData);
+  succes = res.ok;
+  erreurs = res.erreurs;
+  valeurs = res.valeurs;
+}
+
+// --- Chargement de l'appartement (clé anon → policy de lecture publique) ---
+const { data: appartement } = await supabase
+  .from('appartements')
+  .select('*')
+  .eq('id', id!)
+  .maybeSingle();
+
+if (!appartement) {
+  Astro.response.status = 404;
+}
+
+// Helpers d'affichage
+const euros = (n: number) => n.toLocaleString('fr-FR');
+const dateFr = (d: string | null) =>
+  d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+
+const estLoue = appartement?.statut === 'loue';
+const infos = appartement
+  ? [
+      { label: 'Type', valeur: appartement.type === 'location' ? 'Location' : 'Sous-location' },
+      { label: 'Durée', valeur: appartement.duree === 'courte' ? 'Courte durée' : 'Longue durée' },
+      { label: 'Surface', valeur: appartement.surface != null ? `${appartement.surface} m²` : null },
+      {
+        label: 'Pièces',
+        valeur: appartement.nb_pieces != null ? `${appartement.nb_pieces}` : null,
+      },
+      { label: 'Meublé', valeur: appartement.meuble ? 'Oui' : 'Non' },
+      { label: 'Charges', valeur: appartement.charges != null ? `${euros(appartement.charges)} €/mois` : null },
+      { label: 'Disponibilité', valeur: dateFr(appartement.date_disponibilite) },
+    ].filter((i) => i.valeur != null)
+  : [];
+---
+
+<Layout
+  title={appartement ? `${appartement.titre} — hybrid'immo` : 'Appartement introuvable'}
+  description={appartement?.description ?? undefined}
+>
+  {
+    !appartement ? (
+      <section class="mx-auto max-w-3xl px-6 py-24 text-center">
+        <h1 class="text-2xl font-bold">Appartement introuvable</h1>
+        <p class="mt-3 text-[#6B7280]">Cette annonce n'existe pas ou n'est plus en ligne.</p>
+        <a
+          href="/appartements"
+          class="mt-8 inline-block rounded-full bg-accent px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Retour au catalogue
+        </a>
+      </section>
+    ) : (
+      <section class="mx-auto max-w-5xl px-6 py-10">
+        <a href="/appartements" class="text-sm text-[#6B7280] hover:text-[#1A1A1A]">← Retour au catalogue</a>
+
+        {/* Galerie */}
+        <div class="mt-4">
+          {appartement.photos.length > 0 ? (
+            <div class="grid gap-3">
+              <img
+                src={appartement.photos[0]}
+                alt={appartement.titre}
+                class:list={['aspect-[16/9] w-full rounded-2xl object-cover', estLoue && 'grayscale']}
+              />
+              {appartement.photos.length > 1 && (
+                <div class="grid grid-cols-4 gap-3">
+                  {appartement.photos.slice(1, 5).map((url) => (
+                    <img src={url} alt={appartement.titre} class="aspect-square w-full rounded-xl object-cover" />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div class="flex aspect-[16/9] w-full items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+              Pas de photo
+            </div>
+          )}
+        </div>
+
+        {/* En-tête */}
+        <div class="mt-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight">{appartement.titre}</h1>
+            <p class="mt-1 text-[#6B7280]">
+              {appartement.ville}
+              {appartement.quartier ? ` · ${appartement.quartier}` : ''}
+            </p>
+          </div>
+          <p class="text-2xl font-bold text-accent">
+            {euros(appartement.prix_mensuel)}&nbsp;€
+            <span class="text-sm font-normal text-[#6B7280]">/mois</span>
+          </p>
+        </div>
+
+        {/* Infos clés */}
+        <dl class="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:grid-cols-3">
+          {infos.map((i) => (
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-[#6B7280]">{i.label}</dt>
+              <dd class="mt-0.5 font-medium">{i.valeur}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {/* Description */}
+        {appartement.description && (
+          <div class="mt-8">
+            <h2 class="text-lg font-semibold">Description</h2>
+            <p class="mt-2 whitespace-pre-line text-[#374151]">{appartement.description}</p>
+          </div>
+        )}
+
+        {/* Demande */}
+        <div class="mt-10 border-t border-black/5 pt-10">
+          {estLoue ? (
+            <div class="rounded-2xl bg-gray-100 p-6 text-center text-[#6B7280]">
+              Cet appartement est déjà loué. Consultez le
+              <a href="/appartements" class="text-accent underline"> catalogue</a> ou faites une
+              <a href="/demande" class="text-accent underline"> demande générale</a>.
+            </div>
+          ) : succes ? (
+            <div class="rounded-2xl bg-green-50 p-6 text-green-800">
+              <h2 class="text-lg font-semibold">Demande envoyée ✅</h2>
+              <p class="mt-1">
+                Merci ! Votre demande a bien été reçue. Nous vous répondrons sous 24 à 48 h.
+              </p>
+            </div>
+          ) : (
+            <>
+              <h2 class="text-xl font-semibold">Cet appartement vous intéresse ?</h2>
+              <p class="mt-1 text-[#6B7280]">Remplissez ce formulaire, nous revenons vers vous rapidement.</p>
+              <div class="mt-6">
+                <DemandeForm appartement={appartement} erreurs={erreurs} valeurs={valeurs} />
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+    )
+  }
+</Layout>
