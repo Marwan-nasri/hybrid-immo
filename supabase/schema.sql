@@ -134,6 +134,15 @@ create policy "photos_select_public"
   to anon
   using (bucket_id = 'photos-appartements');
 
+-- L'admin authentifie doit aussi pouvoir "voir" les objets, sinon remove()/list()
+-- ne trouvent rien a supprimer (Storage fait un select avant le delete).
+drop policy if exists "photos_select_admin" on storage.objects;
+create policy "photos_select_admin"
+  on storage.objects
+  for select
+  to authenticated
+  using (bucket_id = 'photos-appartements');
+
 drop policy if exists "photos_insert_admin" on storage.objects;
 create policy "photos_insert_admin"
   on storage.objects
