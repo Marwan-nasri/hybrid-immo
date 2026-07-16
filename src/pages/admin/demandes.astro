@@ -134,7 +134,7 @@ const dateFr = (d: string) =>
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p class="font-semibold">{d.nom}</p>
-                      <p class="text-sm text-[#6B7280]">
+                      <p class="break-words text-sm text-[#6B7280]">
                         <a href={`mailto:${d.email}`} class="hover:underline">{d.email}</a>
                         {' · '}
                         <a href={`tel:${d.telephone}`} class="hover:underline">{d.telephone}</a>
@@ -156,9 +156,9 @@ const dateFr = (d: string) =>
                       {d.nb_personnes != null && <span>Personnes : {d.nb_personnes}</span>}
                     </div>
                   )}
-                  {d.message && <p class="mt-2 text-sm text-[#374151] whitespace-pre-line">{d.message}</p>}
+                  {d.message && <p class="mt-2 break-words text-sm text-[#374151] whitespace-pre-line">{d.message}</p>}
 
-                  <form method="post" class="mt-4 flex items-center gap-2">
+                  <form method="post" class="mt-4 flex flex-wrap items-center gap-2">
                     <input type="hidden" name="_action" value="statut" />
                     <input type="hidden" name="demande_id" value={d.id} />
                     <input type="hidden" name="appartement_id" value={d.appartement_id ?? ''} />

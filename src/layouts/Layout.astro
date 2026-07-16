@@ -34,17 +34,18 @@ const annee = new Date().getFullYear();
   </head>
   <body class="flex min-h-screen flex-col bg-canvas font-sans text-[#1A1A1A] antialiased">
     <header class="sticky top-0 z-10 border-b border-black/5 bg-canvas/80 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <a href="/" class="text-xl font-bold tracking-tight">
           hybrid<span class="text-accent">'immo</span>
         </a>
-        <nav class="flex items-center gap-6 text-sm font-medium text-[#6B7280]">
+        <nav class="flex items-center gap-3 text-sm font-medium text-[#6B7280] sm:gap-6">
           <a href="/appartements" class="transition-colors hover:text-[#1A1A1A]">Appartements</a>
           <a
             href="/demande"
             class="rounded-full bg-accent px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
           >
-            Faire une demande
+            <span class="sm:hidden">Demande</span>
+            <span class="hidden sm:inline">Faire une demande</span>
           </a>
         </nav>
       </div>
