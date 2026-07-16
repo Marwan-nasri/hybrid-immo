@@ -1,0 +1,127 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const supabase = Astro.locals.supabase;
+
+// Client authentifié → policies RLS `authenticated` : accès complet.
+const { data: appartements } = await supabase
+  .from('appartements')
+  .select('*')
+  .order('created_at', { ascending: false });
+
+const { data: demandes } = await supabase.from('demandes').select('appartement_id, statut');
+
+// Comptage des demandes par appartement (+ nouvelles).
+const parAppart = new Map<string, { total: number; nouvelles: number }>();
+let generalesTotal = 0;
+let generalesNouvelles = 0;
+for (const d of demandes ?? []) {
+  const nouvelle = d.statut === 'nouvelle';
+  if (d.appartement_id) {
+    const c = parAppart.get(d.appartement_id) ?? { total: 0, nouvelles: 0 };
+    c.total += 1;
+    if (nouvelle) c.nouvelles += 1;
+    parAppart.set(d.appartement_id, c);
+  } else {
+    generalesTotal += 1;
+    if (nouvelle) generalesNouvelles += 1;
+  }
+}
+
+const totalDemandes = (demandes ?? []).length;
+const totalNouvelles = (demandes ?? []).filter((d) => d.statut === 'nouvelle').length;
+
+const statutBadge: Record<string, string> = {
+  disponible: 'bg-green-100 text-green-800',
+  bientot: 'bg-amber-100 text-amber-800',
+  loue: 'bg-gray-200 text-gray-600',
+};
+---
+
+<AdminLayout title="Dashboard">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+    <a
+      href="/admin/appartements/nouveau"
+      class="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+    >
+      + Nouvel appartement
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <p class="text-xs uppercase tracking-wide text-[#6B7280]">Appartements</p>
+      <p class="mt-1 text-2xl font-bold">{appartements?.length ?? 0}</p>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <p class="text-xs uppercase tracking-wide text-[#6B7280]">Demandes</p>
+      <p class="mt-1 text-2xl font-bold">{totalDemandes}</p>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <p class="text-xs uppercase tracking-wide text-[#6B7280]">Nouvelles</p>
+      <p class="mt-1 text-2xl font-bold text-accent">{totalNouvelles}</p>
+    </div>
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
+      <p class="text-xs uppercase tracking-wide text-[#6B7280]">Demandes générales</p>
+      <p class="mt-1 text-2xl font-bold">{generalesTotal}</p>
+    </div>
+  </div>
+
+  <!-- Liste des appartements -->
+  <h2 class="mt-10 text-lg font-semibold">Appartements</h2>
+  <div class="mt-4 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
+    <table class="w-full text-left text-sm">
+      <thead class="border-b border-black/5 text-xs uppercase tracking-wide text-[#6B7280]">
+        <tr>
+          <th class="px-5 py-3">Titre</th>
+          <th class="px-5 py-3">Ville</th>
+          <th class="px-5 py-3">Prix</th>
+          <th class="px-5 py-3">Statut</th>
+          <th class="px-5 py-3">Demandes</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          (appartements ?? []).map((a) => {
+            const c = parAppart.get(a.id) ?? { total: 0, nouvelles: 0 };
+            return (
+              <tr class="border-b border-black/5 last:border-0">
+                <td class="px-5 py-3 font-medium">{a.titre}</td>
+                <td class="px-5 py-3 text-[#6B7280]">{a.ville}</td>
+                <td class="px-5 py-3">{a.prix_mensuel.toLocaleString('fr-FR')} €</td>
+                <td class="px-5 py-3">
+                  <span class:list={['rounded-full px-2 py-0.5 text-xs font-semibold', statutBadge[a.statut]]}>
+                    {a.statut}
+                  </span>
+                </td>
+                <td class="px-5 py-3">
+                  {c.total}
+                  {c.nouvelles > 0 && (
+                    <span class="ml-1 rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-white">
+                      {c.nouvelles} new
+                    </span>
+                  )}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <a href={`/admin/appartements/${a.id}`} class="font-medium text-accent hover:underline">
+                    Éditer
+                  </a>
+                </td>
+              </tr>
+            );
+          })
+        }
+        {(appartements ?? []).length === 0 && (
+          <tr>
+            <td colspan="6" class="px-5 py-8 text-center text-[#6B7280]">
+              Aucun appartement. Cliquez sur « Nouvel appartement » pour commencer.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

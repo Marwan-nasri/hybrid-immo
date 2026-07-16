@@ -1,0 +1,83 @@
+---
+import '../../styles/global.css';
+
+let erreur = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email = (form.get('email') ?? '').toString().trim();
+  const password = (form.get('password') ?? '').toString();
+
+  if (!email || !password) {
+    erreur = 'Email et mot de passe requis.';
+  } else {
+    // signInWithPassword écrit la session dans les cookies (via le client du middleware).
+    const { error } = await Astro.locals.supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      erreur = 'Identifiants invalides.';
+    } else {
+      return Astro.redirect('/admin');
+    }
+  }
+}
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Connexion — Admin hybrid'immo</title>
+  </head>
+  <body class="flex min-h-screen items-center justify-center bg-canvas font-sans text-[#1A1A1A] antialiased">
+    <main class="w-full max-w-sm px-6">
+      <a href="/" class="block text-center text-2xl font-bold tracking-tight">
+        hybrid<span class="text-accent">'immo</span>
+      </a>
+      <div class="mt-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+        <h1 class="text-lg font-semibold">Espace admin</h1>
+        <p class="mt-1 text-sm text-[#6B7280]">Connectez-vous pour continuer.</p>
+
+        {erreur && (
+          <p class="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{erreur}</p>
+        )}
+
+        <form method="post" class="mt-6 flex flex-col gap-4">
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="font-medium">Email</span>
+            <input
+              type="email"
+              name="email"
+              required
+              autocomplete="username"
+              class="rounded-lg border border-black/10 bg-white px-3 py-2"
+            />
+          </label>
+          <label class="flex flex-col gap-1 text-sm">
+            <span class="font-medium">Mot de passe</span>
+            <input
+              type="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="rounded-lg border border-black/10 bg-white px-3 py-2"
+            />
+          </label>
+          <button
+            type="submit"
+            class="mt-2 rounded-full bg-accent px-5 py-2.5 font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Se connecter
+          </button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
