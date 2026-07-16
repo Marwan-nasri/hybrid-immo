@@ -27,6 +27,7 @@ PUBLIC_SUPABASE_ANON_KEY=     # exposée au client — clé anon, protégée par
 SUPABASE_SERVICE_ROLE_KEY=    # côté serveur uniquement, jamais exposée au client
 RESEND_API_KEY=               # côté serveur uniquement
 NOTIFICATION_EMAIL=           # email du gestionnaire qui reçoit les notifications
+RESEND_FROM=                  # expéditeur des emails (domaine vérifié Resend ; défaut : onboarding@resend.dev)
 PUBLIC_SITE_URL=              # URL publique du site (liens absolus dans les emails)
 ```
 

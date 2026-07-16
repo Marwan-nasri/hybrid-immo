@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { envoyerEmailsDemande } from './emails';
 import type { TypeBien, Duree } from './database.types';
 
 // Traitement d'une demande soumise via un formulaire public.
@@ -103,6 +104,34 @@ export async function traiterDemande(formData: FormData): Promise<ResultatDemand
       valeurs,
     };
   }
+
+  // Demande enregistrée. On envoie les emails (notification gestionnaire + accusé
+  // candidat). L'envoi ne peut pas faire échouer la demande : `envoyerEmailsDemande`
+  // encapsule ses propres erreurs. On récupère d'abord le titre de l'appartement
+  // (lecture publique autorisée) pour l'objet de l'email.
+  let titreAppartement: string | null = null;
+  if (appartementId) {
+    const { data } = await supabase
+      .from('appartements')
+      .select('titre')
+      .eq('id', appartementId)
+      .maybeSingle();
+    titreAppartement = data?.titre ?? null;
+  }
+
+  await envoyerEmailsDemande({
+    nom: ligne.nom,
+    email: ligne.email,
+    telephone: ligne.telephone,
+    type_demande: ligne.type_demande,
+    duree: ligne.duree,
+    ville: ligne.ville,
+    budget: ligne.budget,
+    date_entree: ligne.date_entree,
+    nb_personnes: ligne.nb_personnes,
+    message: ligne.message,
+    titreAppartement,
+  });
 
   return { ok: true, erreurs: {}, valeurs: {} };
 }
