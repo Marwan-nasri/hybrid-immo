@@ -1,30 +1,261 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AppartementCard from '../components/AppartementCard.astro';
+import { supabase } from '../lib/supabase';
 
 const tagline = "L'immobilier hybride : l'expertise humaine augmentée par le digital.";
+
+// Les 3 derniers appartements encore proposables (pas les "loués"),
+// mis en avant sur l'accueil. La policy RLS publique s'applique.
+const { data: enAvant } = await supabase
+  .from('appartements')
+  .select('*')
+  .in('statut', ['disponible', 'bientot'])
+  .order('created_at', { ascending: false })
+  .limit(3);
+
+const features = [
+  {
+    titre: 'Location & sous-location',
+    texte:
+      'Des appartements en location classique ou en sous-location encadrée, pour s’adapter à votre situation.',
+    icone: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10',
+  },
+  {
+    titre: 'Courte ou longue durée',
+    texte:
+      'Quelques semaines ou plusieurs années : chaque bien précise sa durée, à vous de choisir ce qui vous convient.',
+    icone: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0',
+  },
+  {
+    titre: 'Demande gratuite et rapide',
+    texte:
+      'Un simple formulaire, sans création de compte ni engagement. Vous recevez une réponse sous 24 à 48h.',
+    icone: 'M13 10V3L4 14h7v7l9-11h-7z',
+  },
+  {
+    titre: 'Un interlocuteur unique',
+    texte:
+      'Un gestionnaire dédié suit votre dossier de la demande jusqu’à la remise des clés.',
+    icone:
+      'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+  },
+];
+
+const etapes = [
+  {
+    titre: 'Parcourez le catalogue',
+    texte:
+      'Filtrez par ville, type, durée et budget pour trouver l’appartement qui vous correspond.',
+  },
+  {
+    titre: 'Envoyez votre demande',
+    texte:
+      'Remplissez le formulaire en deux minutes, depuis une fiche appartement ou en demande générale.',
+  },
+  {
+    titre: 'On vous recontacte',
+    texte:
+      'Votre demande est étudiée et vous recevez une réponse personnalisée sous 24 à 48h.',
+  },
+];
+
+const faq = [
+  {
+    q: 'La demande est-elle vraiment gratuite ?',
+    r: 'Oui. Envoyer une demande ne coûte rien et ne vous engage à rien : c’est une simple prise de contact pour étudier votre projet.',
+  },
+  {
+    q: 'Quelle est la différence entre location et sous-location ?',
+    r: 'En location, vous signez un bail directement avec le propriétaire. En sous-location, le logement est loué par notre gestionnaire qui vous le sous-loue dans un cadre légal et transparent, avec l’accord du propriétaire.',
+  },
+  {
+    q: 'Puis-je louer pour une courte durée ?',
+    r: 'Oui. Chaque annonce précise si le bien est proposé en courte ou en longue durée. Utilisez le filtre « Durée » du catalogue pour ne voir que ce qui vous intéresse.',
+  },
+  {
+    q: 'Sous quel délai vais-je recevoir une réponse ?',
+    r: 'Chaque demande reçoit une réponse sous 24 à 48h ouvrées, par email ou par téléphone selon vos coordonnées.',
+  },
+  {
+    q: 'Que deviennent mes données personnelles ?',
+    r: 'Elles servent uniquement à traiter votre demande et ne sont jamais revendues. Vous pouvez en demander la suppression à tout moment — voir notre politique de confidentialité.',
+  },
+];
 ---
 
-<Layout title="hybrid'immo" description={tagline}>
-  <section class="mx-auto flex max-w-3xl flex-col items-center px-6 py-24 text-center sm:py-32">
-    <h1 class="text-5xl font-bold tracking-tight sm:text-6xl">
-      hybrid<span class="text-accent">'immo</span>
+<Layout title="hybrid'immo — location et sous-location d'appartements" description={tagline}>
+  <!-- Hero -->
+  <section class="mx-auto flex max-w-4xl flex-col items-center px-6 pb-20 pt-20 text-center sm:pb-28 sm:pt-28">
+    <p class="rounded-full bg-accent/10 px-4 py-1.5 text-sm font-medium text-accent">
+      Location & sous-location en France
+    </p>
+    <h1 class="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
+      Trouvez votre prochain appartement, <span class="text-accent">simplement</span>.
     </h1>
-    <p class="mt-6 max-w-xl text-lg text-[#6B7280]">
-      {tagline}
+    <p class="mt-6 max-w-2xl text-lg text-[#6B7280]">
+      {tagline} Parcourez nos appartements en location et sous-location, courte ou longue
+      durée, et envoyez votre demande gratuitement.
     </p>
     <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
       <a
         href="/appartements"
-        class="rounded-full bg-accent px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90"
+        class="rounded-full bg-accent px-7 py-3.5 font-semibold text-white transition-opacity hover:opacity-90"
       >
         Voir les appartements
       </a>
       <a
         href="/demande"
-        class="rounded-full px-6 py-3 font-semibold text-[#1A1A1A] ring-1 ring-black/10 transition-colors hover:bg-black/5"
+        class="rounded-full bg-white px-7 py-3.5 font-semibold text-[#1A1A1A] ring-1 ring-black/10 transition-colors hover:bg-black/5"
       >
         Faire une demande
       </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="bg-white py-20 sm:py-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="reveal max-w-2xl">
+        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
+          Pourquoi passer par hybrid'immo&nbsp;?
+        </h2>
+        <p class="mt-3 text-[#6B7280]">
+          Une gestion à taille humaine, des annonces claires et une mise en relation directe.
+        </p>
+      </div>
+      <div class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          features.map((f) => (
+            <div class="reveal rounded-2xl bg-canvas p-6 ring-1 ring-black/5">
+              <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10">
+                <svg
+                  class="h-5 w-5 text-accent"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d={f.icone} />
+                </svg>
+              </div>
+              <h3 class="mt-4 font-semibold">{f.titre}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-[#6B7280]">{f.texte}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Comment ça marche -->
+  <section class="py-20 sm:py-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="reveal max-w-2xl">
+        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Comment ça marche&nbsp;?</h2>
+        <p class="mt-3 text-[#6B7280]">Trois étapes, aucun compte à créer.</p>
+      </div>
+      <ol class="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        {
+          etapes.map((e, i) => (
+            <li class="reveal rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">
+                {i + 1}
+              </span>
+              <h3 class="mt-4 font-semibold">{e.titre}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-[#6B7280]">{e.texte}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Appartements en avant -->
+  {
+    enAvant && enAvant.length > 0 && (
+      <section class="bg-white py-20 sm:py-24">
+        <div class="mx-auto max-w-6xl px-6">
+          <div class="reveal flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Nos derniers appartements</h2>
+              <p class="mt-3 text-[#6B7280]">Un aperçu de ce qui est disponible en ce moment.</p>
+            </div>
+            <a
+              href="/appartements"
+              class="text-sm font-semibold text-accent transition-opacity hover:opacity-80"
+            >
+              Tout le catalogue →
+            </a>
+          </div>
+          <div class="reveal mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {enAvant.map((a) => (
+              <AppartementCard appartement={a} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- FAQ -->
+  <section class="py-20 sm:py-24">
+    <div class="mx-auto max-w-3xl px-6">
+      <div class="reveal text-center">
+        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Questions fréquentes</h2>
+        <p class="mt-3 text-[#6B7280]">Tout ce qu'il faut savoir avant d'envoyer votre demande.</p>
+      </div>
+      <div class="reveal mt-12 space-y-3">
+        {
+          faq.map((item) => (
+            <details class="group rounded-2xl bg-white ring-1 ring-black/5 open:shadow-sm">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-semibold [&::-webkit-details-marker]:hidden">
+                {item.q}
+                <svg
+                  class="h-5 w-5 shrink-0 text-[#6B7280] transition-transform group-open:rotate-180"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <p class="px-6 pb-5 text-sm leading-relaxed text-[#6B7280]">{item.r}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA final sombre -->
+  <section class="bg-[#0D0D0D] py-20 text-center sm:py-24">
+    <div class="reveal mx-auto max-w-2xl px-6">
+      <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        Prêt à trouver votre appartement&nbsp;?
+      </h2>
+      <p class="mt-4 text-white/60">
+        Envoyez votre demande gratuitement — réponse sous 24 à 48h, sans engagement.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <a
+          href="/demande"
+          class="rounded-full bg-accent px-7 py-3.5 font-semibold text-white transition-opacity hover:opacity-90"
+        >
+          Faire une demande
+        </a>
+        <a
+          href="/appartements"
+          class="rounded-full px-7 py-3.5 font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/10"
+        >
+          Voir les appartements
+        </a>
+      </div>
     </div>
   </section>
 </Layout>

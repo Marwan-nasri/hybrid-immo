@@ -28,6 +28,9 @@ const annee = new Date().getFullYear();
       rel="stylesheet"
     />
     <title>{title}</title>
+    <!-- Pose la classe .js avant le premier rendu : le CSS ne cache les
+         éléments .reveal que si le JS est bien là pour les révéler ensuite. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
   <body class="flex min-h-screen flex-col bg-canvas font-sans text-[#1A1A1A] antialiased">
     <header class="sticky top-0 z-10 border-b border-black/5 bg-canvas/80 backdrop-blur">
@@ -67,5 +70,22 @@ const annee = new Date().getFullYear();
         </p>
       </div>
     </footer>
+
+    <script>
+      // Fade-in au scroll : dès qu'un élément .reveal entre dans le viewport,
+      // on pose .reveal-visible (une seule fois) et le CSS fait la transition.
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal-visible');
+              observer.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.1 },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    </script>
   </body>
 </html>
